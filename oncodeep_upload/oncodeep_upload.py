@@ -34,10 +34,6 @@ class OncoDeepUpload:
             Create the SFTP client object for use in file upload
         upload_file()
             Upload file from local file path to remote server location
-        create_subdir()
-            Create subdir if not already present
-        subfolder_exists()
-            Check if expected subfolder on the SFTP server exists
         close_connection()
             Close the SFTP and SSH connection
     """
@@ -116,8 +112,6 @@ class OncoDeepUpload:
         Upload file from local file path to remote server location
             :return None:
         """
-        if not self.subfolder_exists():
-            self.create_subdir()
         try:
             self.logger.info(f"Uploading file to SFTP server subfolder. Src: {self.file_path} Dest: {self.sftp_destination}")
             self.sftp_client.put(self.file_path, self.sftp_destination)
@@ -125,34 +119,6 @@ class OncoDeepUpload:
         except Exception as exception:
             self.logger.error(f"An exception was encountered when uploading the file to the SFTP server: {exception}")
             sys.exit(1)
-
-    def create_subdir(self) -> None:
-        """
-        Create subdir if not already present
-            :return None:
-        """
-        try:
-            self.logger.info(f"Creating subdirectory: {self.subfolder}")
-            self.sftp_client.mkdir(self.subfolder)
-            self.logger.info(f"Successfully created subdirectory: {self.subfolder}")
-        except Exception as exception:
-            self.logger.error(
-                f"An exception was encountered when creating subdirectory {self.subfolder} subdirectory: {exception}"
-            )
-            sys.exit(1)
-
-    def subfolder_exists(self) -> bool:
-        """
-        Check if expected subfolder on the SFTP server exists
-            :return (bool): True if subdirectory
-        """
-        try:
-            self.sftp_client.stat(self.subfolder)
-            self.logger.info(f"Subdirectory already exists: {self.subfolder}")
-            return True
-        except FileNotFoundError:
-            self.logger.info(f"Subdirectory does not exist: {self.subfolder}")
-            return False
 
     def close_connection(self) -> None:
         """
