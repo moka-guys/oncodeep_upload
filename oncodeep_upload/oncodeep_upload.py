@@ -119,6 +119,8 @@ class OncoDeepUpload:
             self.logger.info(
                 f"Uploading file to SFTP server subfolder. Src: {self.file_path} Dest: {self.sftp_destination}"
             )
+            if self.run_identifier not in self.sftp_client.listdir("/data/"):
+                self.sftp_client.mkdir(self.subfolder)
             self.sftp_client.put(self.file_path, self.sftp_destination)
             self.logger.info("File upload successful")
         except Exception as exception:
